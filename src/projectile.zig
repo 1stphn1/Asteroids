@@ -68,33 +68,7 @@ pub const Projectile = struct {
 
         for (asteroids.items) |*astr| {
             if (rlm.vector2Distance(astr.pos, self.pos) <= Asteroid.radius(astr.size)) {
-                rl.playSound(sounds.asteroid_explosion);
-
-                if (astr.size == .small) {
-                    astr.* = Asteroid.new(bounds, prng);
-                    return true;
-                }
-
-                const new_size: Asteroid.Size =
-                    if (astr.size == .large) .medium else .small;
-                const astr_pos = astr.pos;
-                const astr_vel = astr.velocity;
-
-                astr.* = Asteroid.newFromDestroyed(
-                    astr_pos,
-                    astr_vel,
-                    new_size,
-                    prng,
-                );
-                try asteroids.append(
-                    Asteroid.newFromDestroyed(
-                        astr_pos,
-                        astr_vel,
-                        new_size,
-                        prng,
-                    ),
-                );
-
+                astr.hit_by_projectile = true;
                 return true;
             }
         }

@@ -60,11 +60,12 @@ pub const Particles = struct {
 };
 
 const AsteroidParticles = struct {
-    const particleCount = 8;
-    const particleSpeed = 0.4;
+    const particle_count = 16;
+    const particle_speed = 0.4;
 
-    points: [particleCount]Vector2,
-    velocities: [particleCount]Vector2,
+    points: [particle_count]Vector2,
+    velocities: [particle_count]Vector2,
+    color: rl.Color,
     time_of_creation: f64,
     lifetime_duration_sec: f32,
 
@@ -82,8 +83,9 @@ const AsteroidParticles = struct {
 
         for (&ast_particles.velocities) |*vel| {
             const rand_float = rnd.float(f32);
-            vel.x = rand_float * particleSpeed;
-            vel.y = (1 - rand_float) * particleSpeed;
+            const p_speed = rlm.lerp(0.05, 0.8, rnd.float(f32) + 0.1);
+            vel.x = rand_float * p_speed;
+            vel.y = (1 - rand_float) * p_speed;
 
             const multiply_x_by_1_or_minus_1: f32 = if (rnd.boolean()) 1 else -1;
             const multiply_y_by_1_or_minus_1: f32 = if (rnd.boolean()) 1 else -1;
@@ -93,15 +95,33 @@ const AsteroidParticles = struct {
 
         ast_particles.time_of_creation = rl.getTime();
         ast_particles.lifetime_duration_sec = lifetime_duration_in_sec;
+        ast_particles.color = rl.Color.white;
         return ast_particles;
+    }
+
+    fn fade(self: *AsteroidParticles) void {
+        const fps = @as(f32, @floatFromInt(rl.getFPS()));
+        const fade_speed = @as(u8, @intFromFloat(3.0 * fps / 60.0));
+
+        if (self.color.a > 0) {
+            self.color.a -= fade_speed;
+        }
+
+        if (self.color.a < fade_speed) {
+            self.color.a = 0;
+        }
     }
 
     fn update(self: *AsteroidParticles) bool {
         if (rl.getTime() - self.time_of_creation > self.lifetime_duration_sec) {
-            return true;
+            self.fade();
+
+            if (self.color.a == 0) {
+                return true;
+            }
         }
 
-        for (0..particleCount) |i| {
+        for (0..particle_count) |i| {
             self.points[i] = rlm.vector2Add(self.points[i], self.velocities[i]);
         }
 
@@ -110,7 +130,7 @@ const AsteroidParticles = struct {
 
     fn draw(self: AsteroidParticles) void {
         for (self.points) |point| {
-            draw_mod.drawPoint(point);
+            draw_mod.drawPointColor(point, self.color);
         }
     }
 };

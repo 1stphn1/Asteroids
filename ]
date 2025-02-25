@@ -88,7 +88,6 @@ fn update(
     asteroids: *std.ArrayList(Asteroid),
     projectiles: *std.ArrayList(Projectile),
     aliens: *std.BoundedArray(Alien, 3),
-    particles: *Particles,
     prng: *rand.DefaultPrng,
 ) !void {
     if (ship.has_collided_this_frame) {
@@ -114,10 +113,9 @@ fn update(
     i = 0;
     while (i < asteroids.items.len) {
         if (asteroids.items[i].hit_by_projectile == true) {
-            const astr = &asteroids.items[i];
-
             rl.playSound(sounds.asteroid_explosion);
-            try particles.beginParticles(astr.pos, 0.2, prng);
+
+            const astr = &asteroids.items[i];
 
             if (astr.size == .small) {
                 astr.* = Asteroid.new(game.bounds, prng);
@@ -344,18 +342,12 @@ pub fn main() !void {
         try asteroids.append(Asteroid.new(game.bounds, &prng));
     }
 
+    try particles.beginParticles(Vector2.init(0, 0), 2, &prng);
+
     // Detect window close button or ESC key
     while (!rl.windowShouldClose()) {
         try input(&ship, &projectiles);
-        try update(
-            &game,
-            &ship,
-            &asteroids,
-            &projectiles,
-            &aliens,
-            &particles,
-            &prng,
-        );
+        try update(&game, &ship, &asteroids, &projectiles, &aliens, &prng);
         particles.update();
 
         rl.beginDrawing();

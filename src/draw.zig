@@ -48,3 +48,11 @@ pub fn drawCircle(center: Vector2, radius: f32) void {
 pub fn drawPoint(center: Vector2) void {
     drawCircle(center, 1);
 }
+
+pub fn drawCircleColor(center: Vector2, radius: f32, color: rl.Color) void {
+    rl.drawCircleV(gameToWin(center), radius, color);
+}
+
+pub fn drawPointColor(center: Vector2, color: rl.Color) void {
+    drawCircleColor(center, 1, color);
+}

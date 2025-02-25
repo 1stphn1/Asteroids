@@ -22,6 +22,7 @@ pub const Asteroid = struct {
     velocity: Vector2,
     size: Size,
     spawn_side: SpawnSide,
+    hit_by_projectile: bool,
 
     pub const Size = enum {
         small,
@@ -93,6 +94,7 @@ pub const Asteroid = struct {
             .velocity = undefined,
             .size = undefined,
             .spawn_side = undefined,
+            .hit_by_projectile = false,
         };
 
         const rand_int = @mod(prng.random().int(i32), 100);
@@ -160,7 +162,7 @@ pub const Asteroid = struct {
 
     pub fn newFromDestroyed(
         pos: Vector2,
-        parentAstrVel: Vector2,
+        parent_astr_vel: Vector2,
         size: Size,
         prng: *rand.DefaultPrng,
     ) Asteroid {
@@ -170,9 +172,10 @@ pub const Asteroid = struct {
             .velocity = undefined,
             .size = size,
             .spawn_side = .check_for_all,
+            .hit_by_projectile = false,
         };
 
-        astr.velocity = parentAstrVel;
+        astr.velocity = parent_astr_vel;
         astr.velocity.x += prng.random().float(f32) / 5;
         astr.velocity.y += (1.0 / 5.0) - astr.velocity.x;
 
